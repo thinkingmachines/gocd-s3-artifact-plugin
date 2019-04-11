@@ -24,6 +24,7 @@ import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse;
 import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
+import org.apache.commons.text.StringSubstitutor;
 import diogomrol.gocd.s3.artifact.plugin.model.ArtifactPlan;
 import diogomrol.gocd.s3.artifact.plugin.model.ArtifactStoreConfig;
 import diogomrol.gocd.s3.artifact.plugin.model.PublishArtifactRequest;
@@ -57,8 +58,9 @@ public class PublishArtifactExecutor implements RequestExecutor {
         final ArtifactStoreConfig artifactStoreConfig = publishArtifactRequest.getArtifactStore().getArtifactStoreConfig();
         try {
             final AmazonS3 s3 = clientFactory.s3(artifactStoreConfig);
-            final String sourceFile = artifactPlan.getArtifactPlanConfig().getSource();
-            final String destinationFolder = artifactPlan.getArtifactPlanConfig().getDestination();
+            StringSubstitutor sub = new StringSubstitutor(publishArtifactRequest.getEnvironmentVariables());
+            final String sourceFile = sub.replace(artifactPlan.getArtifactPlanConfig().getSource());
+            final String destinationFolder = sub.replace(artifactPlan.getArtifactPlanConfig().getDestination());
             final String s3bucket = artifactStoreConfig.getS3bucket();
             final String workingDir = publishArtifactRequest.getAgentWorkingDir();
             String s3bucketPath;
